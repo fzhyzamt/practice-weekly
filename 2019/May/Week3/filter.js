@@ -21,42 +21,31 @@
  * // 过滤出 active 为 true 的元素
  * filter(users, 'active');
  */
+const filterMapping = {
+    'function': (obj, func) => func(obj) ? obj : null,
+    'string': (obj, name) => obj[name] ? obj : null,
+    'object': (obj, map) => Object.keys(map).every(key => obj[key] === map[key]) ? obj : null,
+};
 module.exports = function filter(collection, predicate) {
-  if (!collection || typeof collection !== 'object' && !Array.isArray(collection) || !predicate) {
-    return [];
-  }
+    const result = [];
 
-  function colFilter(col, callback) {
-    if (Array.isArray(col)) {
-      return col.filter(callback);
+    if (!collection) {
+        return result;
     }
 
-    if (typeof (col) === 'object') {
-      const result = [];
+    let collectionArray = collection;
+    if (!Array.isArray(collection)) {
+        collectionArray = Object.values(collection);
+    }
 
-      /* eslint no-restricted-syntax: "error" */
-      for (const key in col) {
-        if (Object.prototype.hasOwnProperty.call(col, key) && callback(col[key])) {
-          result.push(col[key]);
+    collectionArray.forEach(e => {
+        const predicateType = typeof predicate;
+        const r = predicateType in filterMapping ?
+            filterMapping[predicateType](e, predicate)
+            : null;
+        if (r) {
+            result.push(r);
         }
-      }
-      return result;
-    }
-
-    return [];
-  }
-
-  if (typeof(predicate) === 'string') {
-    return colFilter(collection, obj => obj[predicate]);
-  }
-
-  if (typeof(predicate) === 'function') {
-    return colFilter(collection, obj => predicate(obj));
-  }
-
-  if (typeof(predicate) === 'object') {
-    return colFilter(collection, obj => Object.keys(predicate).every(key => obj[key] === predicate[key]));
-  }
-
-  return [];
-}
+    });
+    return result;
+};
