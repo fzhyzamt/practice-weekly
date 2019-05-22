@@ -32,6 +32,39 @@
  * // 按 (o) => o.dim1 合并
  * mergeCollection((o) => o.dim1, col1, col2, col3);
  */
-module.exports = function mergeCollection(keys, baseCollection, ...restCollection) {
-
+const mergeCheckMapping = {
+    'string': (key, baseCollection, otherCollection) => baseCollection[key] === otherCollection[key],
+    'object': (keyArray, baseCollection, otherCollection) => keyArray.every(key => baseCollection[key] === otherCollection[key]),
+    'function': (func, baseCollection, otherCollection) => func(baseCollection) === func(otherCollection)
 };
+function merge(baseCollection, otherCollection) {
+    Object.keys(otherCollection).forEach(key => {
+        // eslint-disable-next-line no-param-reassign
+        baseCollection[key] = otherCollection[key];
+    })
+}
+module.exports = function mergeCollection(keys, baseCollection, ...restCollection) {
+    const keyType = typeof keys;
+    if (!restCollection || !(keyType in mergeCheckMapping)) {
+        return baseCollection;
+    }
+    let baseCollectionArray = baseCollection;
+    if (!Array.isArray(baseCollection)) {
+        baseCollectionArray = Object.values(baseCollection);
+    }
+
+    restCollection.forEach(rest => {
+        let restArray = rest;
+        if (!Array.isArray(rest)) {
+            restArray = Object.values(rest);
+        }
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < restArray.length; i++) {
+            const base = baseCollectionArray[Math.min(baseCollectionArray.length - 1, i)];
+            if (mergeCheckMapping[keyType](keys, base, restArray[i])) {
+                merge(base, restArray[i]);
+            }
+        }
+    });
+
+    return baseCollectionArray;
