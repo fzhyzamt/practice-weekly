@@ -45,19 +45,13 @@ function merge(baseCollection, otherCollection) {
 }
 module.exports = function mergeCollection(keys, baseCollection, ...restCollection) {
     const keyType = typeof keys;
-    if (!restCollection || !(keyType in mergeCheckMapping)) {
+    if (!keys || !restCollection || !(keyType in mergeCheckMapping)) {
         return baseCollection;
     }
-    let baseCollectionArray = baseCollection;
-    if (!Array.isArray(baseCollection)) {
-        baseCollectionArray = Object.values(baseCollection);
-    }
+    const baseCollectionArray = Array.isArray(baseCollection) ? baseCollection : Object.values(baseCollection);
 
     restCollection.forEach(rest => {
-        let restArray = rest;
-        if (!Array.isArray(rest)) {
-            restArray = Object.values(rest);
-        }
+        const restArray = Array.isArray(rest) ? rest : Object.values(rest);
         // eslint-disable-next-line no-plusplus
         for (let i = 0; i < restArray.length; i++) {
             const base = baseCollectionArray[Math.min(baseCollectionArray.length - 1, i)];
@@ -68,3 +62,4 @@ module.exports = function mergeCollection(keys, baseCollection, ...restCollectio
     });
 
     return baseCollectionArray;
+};
