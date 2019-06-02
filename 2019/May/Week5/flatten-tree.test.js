@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 const { expect } = require('chai');
 const flatten2tree = require('./flatten-tree');
 

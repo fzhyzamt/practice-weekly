@@ -34,6 +34,48 @@
  *   }
  * ]
  */
-module.exports = function flatten2tree(flattenArr, id = 'id', pid = 'pid', level = 'level', children = 'children') {
 
+class TreeBuilder {
+    constructor(id, pid, level, children) {
+        this.id = id;
+        this.pid = pid;
+        this.level = level;
+        this.children = children;
+        this.root = [];
+    }
+
+    insert(ele) {
+        if (ele[this.pid] === 0) {
+            this.root.push(ele);
+            return;
+        }
+        const treeRoot = this.find(ele[this.pid]);
+        treeRoot[this.children] = treeRoot[this.children] === undefined ? [] : treeRoot[this.children];
+        treeRoot[this.children].push(ele);
+    }
+
+    find(id, root = this.root) {
+        for (let i = 0; i < root.length; i += 1) {
+            const ele = root[i];
+            if (ele[this.id] === id) {
+                return ele;
+            }
+            if (ele[this.children]) {
+                const result = this.find(id, ele[this.children]);
+                if (result) return result;
+            }
+        };
+        return null;
+    }
+
+    getResult() {
+        return this.root;
+    }
+}
+module.exports = function flatten2tree(flattenArr, id = 'id', pid = 'pid', level = 'level', children = 'children') {
+    const builder = new TreeBuilder(id, pid, level, children);
+    flattenArr.forEach(element => {
+        builder.insert(element);
+    });
+    return builder.getResult();
 }
