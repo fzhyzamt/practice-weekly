@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fzhyzamt/practice-weekly.svg?branch=master)](https://travis-ci.org/fzhyzamt/practice-weekly)
+
 ## 每周练习
 
 本项目旨在通过每周练习帮你养成良好的编码习惯，提高编码技巧，训练逻辑严谨性。我会认真 review 你的每一行代码，并给出建议和评价。
